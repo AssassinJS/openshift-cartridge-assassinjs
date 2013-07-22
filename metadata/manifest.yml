@@ -1,14 +1,14 @@
 Name: nodejs
 Cartridge-Short-Name: NODEJS
 Display-Name: AssassinJS on Node.js 0.10
-Description: "Node.js is a platform built on Chrome's JavaScript runtime for easily building fast, scalable network applications. Node.js is perfect for data-intensive real-time applications that run across distributed devices."
+Description: "AssassinJS is an Access control framework written in Node, works with node 0.10 and above"
 Version: "0.10"
 Versions: ['0.10', '0.6']
 Source-Url: https://github.com/AssassinJS/openshift-cartridge-assassinjs.git
 License: MIT License
 License-Url: https://raw.github.com/joyent/node/v0.6/LICENSE
-Vendor: www.nodejs.org
-Website: "http://www.nodejs.org/"
+Vendor: www.assassinjs.com
+Website: "http://www.assassinjs.com/"
 Install-Build-Required: true
 Cartridge-Version: 0.0.1
 Cartridge-Vendor: assassinjs
