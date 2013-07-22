@@ -1,0 +1,193 @@
+<$
+var xfr = __request.headers['x-forwarded-for'];
+var ip = xfr?xfr.split(', ')[0]:__request.connection.remoteAddress;
+ip = ip.replace(/\./g,'-');
+
+var userAgent = __request.headers['user-agent'];
+	var browser ='';
+	if(userAgent.indexOf('Seamonkey')!=-1)
+		browser='Seamonkey';
+	else if(userAgent.indexOf('Firefox')!=-1)
+		browser='Firefox';
+	else if(userAgent.indexOf('Chromium')!=-1)
+		browser='Chromium';
+	else if(userAgent.indexOf('Chrome')!=-1)
+		browser='Chrome';
+	else if(userAgent.indexOf('Safari')!=-1)
+		browser='Safari';
+	else if(userAgent.indexOf('Opera')!=-1)
+		browser='Opera';
+	else if(userAgent.indexOf('MSIE')!=-1)
+		browser='MSIE';
+	else
+		browser='Other';
+
+var Months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+var Freq = {};
+var Total = {};
+for(var i=0;i<12;i++)
+{
+	Freq[Months[i]]=0;
+	Total[Months[i]]=0;
+}
+var Rate = {};
+var MyMongo = __rqm.system.dbconnect.MyMongo;
+var db = new MyMongo('localhost', 27017, 'assassindb');
+db.query('Analytics',function(collection){
+	collection.find({}).toArray(function(err,adbItems){
+		if(err) ;
+		else if(adbItems)
+		{
+$>
+<html>
+<head>
+<link rel="stylesheet" href="./style_analytics.css" type="text/css" />
+<link href="http://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css">
+<script src="./javascripts/Chart.js"></script>
+</head>
+<body>
+
+<div id="bodyWrapper">
+
+<$@assassinPanel/pageHeader.jssp$>
+
+<div id="contentWrapper">
+<$
+
+$>
+<div id="titleBox">
+<h1>Welcome to AssassinJS Analytics Page</h1>
+<h2>You Are Using <$=browser$><br />
+From <$=ip$></h2>
+</div>
+
+<div id="barGraphBox" class="boxWhite">
+<canvas id="barGraph" height="300" width="300"></canvas>
+<br />
+Key:
+<br />
+<span style="background-color:rgba(220,220,220,1)">Your Frequency</span>
+<span style="background-color:rgba(151,187,205,1)">Total Frequency</span>
+</div>
+
+<div id="lineGraphBox" class="boxWhite">
+Test Graph<br />
+<canvas id="lineGraph" height="300" width="300"></canvas>
+<br />
+Key:
+<br />
+<span style="background-color:rgba(220,220,220,1)">Your Frequency</span>
+<span style="background-color:rgba(151,187,205,1)">Total Frequency</span>
+</div>
+
+
+<div id="infobox">
+
+Data Dump<br />
+
+<table id="MainTable" border="0" cellspacing="0" style="width:80%;margin:0 auto;position:relative;">
+
+<$
+	/*if(__dataObj.analyticsDB!=null && __dataObj.analyticsDB!=undefined)*/
+	if(adbItems!=null && adbItems!=undefined)
+	{
+$>
+		<tr>
+		<th style="color:#333;">IP Address</th>
+		<th style="color:#333;">URL Route</th>
+		<th style="color:#333;">Timestamp</th>
+		<th style="color:#333;">Browser</th>
+		</tr>
+<$
+		for(x in adbItems)
+		{
+			if(adbItems[x] != null && adbItems[x]!=undefined)
+			{
+				for(y in adbItems[x].logs)
+				{
+					for(z in adbItems[x].logs[y].params.RequestList)
+					{
+						var date = new Date(parseInt(adbItems[x].logs[y].params.RequestList[z].timestamp));
+						var month = date.getMonth();
+						Total[Months[month-1]]++;
+						if(adbItems[x].ip == ip)
+							Freq[Months[month-1]]++;
+$>
+					<tr>
+						<td >
+							<$=adbItems[x].ip$>
+						</td>
+						<td>	
+							<$=adbItems[x].logs[y].url$>
+						</td>
+						<td>
+							<$=adbItems[x].logs[y].params.RequestList[z].timestamp$><br />
+							<$=(new Date(adbItems[x].logs[y].params.RequestList[z].timestamp)).getMinutes()$>
+						</td>
+						<td>
+							<$=adbItems[x].logs[y].params.RequestList[z].browser$>
+						</td>
+					</tr>
+<$
+					}
+				}
+			}
+		}
+	}
+$>
+</table><br />
+</div>
+</div>
+
+</div>
+
+<$@assassinPanel/pageFooter.jssp$>
+
+</div>
+<script>
+
+		var barChartData = {
+			labels : ["June","July","August"],
+			datasets : [
+				{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					data : [<$=Freq[Months[4]]$>,<$=Freq[Months[5]]$>,<$=Freq[Months[6]]$>]
+				},
+				{
+					fillColor : "rgba(151,187,205,0.5)",
+					strokeColor : "rgba(151,187,205,1)",
+					data : [<$=Total[Months[4]]$>,<$=Total[Months[5]]$>,<$=Total[Months[6]]$>]
+				}
+			]
+			
+		};
+		var currentTime = (new Date()).getTime();
+		var frequencyData = {
+			labels : [(new Date(currentTime-4000)).toLocaleTimeString(),
+					(new Date(currentTime-3000)).toLocaleTimeString(),
+					(new Date(currentTime-2000)).toLocaleTimeString(),
+					(new Date(currentTime-1000)).toLocaleTimeString(),
+					(new Date(currentTime)).toLocaleTimeString()],
+			datasets : [
+				{
+					fillColor : "rgba(220,220,220,0.5)",
+					strokeColor : "rgba(220,220,220,1)",
+					data : [1,2,3,4,5]
+				}
+			]
+		};
+
+	var myBar = new Chart(document.getElementById("barGraph").getContext("2d")).Bar(barChartData);
+	var myLine = new Chart(document.getElementById("lineGraph").getContext("2d")).Line(frequencyData);
+	
+</script>
+</body>
+</html>
+<$
+		__rqm.controllers.respond.createResponse(__response,200,{'Content-Type': 'text/html'},outputstr);
+		}
+	});
+});
+/*
+$>
